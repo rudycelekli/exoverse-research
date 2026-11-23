@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+"""Entry point for the standalone Exoverse research release profile."""
+
+import sys
+
+from alignment_review import cli as review_cli
+from paired_study import cli as paired_cli
+from starter_study import cli as starter_cli
+from starter_study import serve
+
+
+def main(argv):
+    if argv == ["mcp", "starter"]:
+        return serve()
+    if argv[:1] == ["starter"]:
+        return starter_cli(argv[1:])
+    if argv[:1] == ["paired"]:
+        return paired_cli(argv[1:])
+    if argv[:1] == ["review"]:
+        return review_cli(argv[1:])
+    print("Usage: exoverse-plugin starter [run|verify] | paired [run|verify] | review | mcp starter")
+    return 0 if argv in ([], ["--help"]) else 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

@@ -1,0 +1,20 @@
+{
+  "interface": {
+    "displayName": "Exoverse Research"
+  },
+  "name": "exoverse-research",
+  "plugins": [
+    {
+      "category": "Scientific Research",
+      "name": "exoverse",
+      "policy": {
+        "authentication": "ON_USE",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./plugins/exoverse",
+        "source": "local"
+      }
+    }
+  ]
+}

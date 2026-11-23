@@ -1,0 +1,14 @@
+{
+  "name": "exoverse-research",
+  "owner": {
+    "name": "Exoverse"
+  },
+  "plugins": [
+    {
+      "description": "Run, compare, and independently verify offline research studies.",
+      "name": "exoverse",
+      "source": "./plugins/exoverse",
+      "version": "0.6.6"
+    }
+  ]
+}

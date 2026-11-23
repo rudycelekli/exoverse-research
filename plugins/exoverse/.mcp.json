@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "exoverse-starter": {
+      "args": [
+        "mcp",
+        "starter"
+      ],
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/exoverse-plugin"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+Exoverse Research
+Copyright 2026 Rudy Celekli
+
+The Apache License 2.0 applies to the included original Exoverse Research
+plugin source, skills, documentation and generated configuration files.
+
+The exploration fixture credits Peter Auer, Nicolò Cesa-Bianchi and Paul
+Fischer, “Finite-time Analysis of the Multiarmed Bandit Problem,”
+https://doi.org/10.1023/A:1013689704352. This is a method reference.
+
+Optional iFixAI and Ruflo adapters call separately installed software.
+Those projects and their dependencies are distributed under their own terms.

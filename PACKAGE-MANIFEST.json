@@ -1,0 +1,109 @@
+{
+  "files": {
+    ".agents/plugins/marketplace.json": {
+      "bytes": 383,
+      "sha256": "239d526887fef1397932796b1db89b91164910fe41ec1a4f4eeb4d6fdef1b9e3",
+      "source": null
+    },
+    ".claude-plugin/marketplace.json": {
+      "bytes": 285,
+      "sha256": "3889b23062300ea5c7d0fc9bd4df6242f63778a3e876c29ea8107ea424053c23",
+      "source": null
+    },
+    "LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "source": "plugins/exoverse/release/LICENSE"
+    },
+    "NOTICE": {
+      "bytes": 556,
+      "sha256": "6189be0a1f154daa64f8fe000d5280e2d452d45db7d1546a62188b58cd744023",
+      "source": "plugins/exoverse/release/NOTICE"
+    },
+    "README.md": {
+      "bytes": 4194,
+      "sha256": "f09c9d1c241c9e199fc51aa5f28f3fce3244077cc57ffe224ca4f24b74efaad8",
+      "source": "plugins/exoverse/release/README.md"
+    },
+    "plugins/exoverse/.claude-plugin/plugin.json": {
+      "bytes": 132,
+      "sha256": "f66dce58a71542259b313064440a27e948fac978d762d033b887e18b0140cdfa",
+      "source": null
+    },
+    "plugins/exoverse/.codex-plugin/plugin.json": {
+      "bytes": 403,
+      "sha256": "513bc2af46ab4b55c28e7a8990cc97e5a16baaa50eac67f9e4eafe7f69c4b20e",
+      "source": null
+    },
+    "plugins/exoverse/.mcp.json": {
+      "bytes": 177,
+      "sha256": "dbdac92efacb667cb769190cede4e776913b79ddc12e350cb35522e26da29f90",
+      "source": null
+    },
+    "plugins/exoverse/LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "source": "plugins/exoverse/release/LICENSE"
+    },
+    "plugins/exoverse/NOTICE": {
+      "bytes": 556,
+      "sha256": "6189be0a1f154daa64f8fe000d5280e2d452d45db7d1546a62188b58cd744023",
+      "source": "plugins/exoverse/release/NOTICE"
+    },
+    "plugins/exoverse/bin/alignment_review.py": {
+      "bytes": 3925,
+      "sha256": "1bbb1d48f37c1015aa2724ba4a74b993176199fb64cf8482a1c8f6a7a3bdd7e5",
+      "source": "plugins/exoverse/bin/alignment_review.py"
+    },
+    "plugins/exoverse/bin/exoverse-plugin": {
+      "bytes": 766,
+      "sha256": "4ae4bbee38a87049a5fb013ca35d5cecce51c255dfa1f085b0851d3541581a5f",
+      "source": "plugins/exoverse/release/launcher.py"
+    },
+    "plugins/exoverse/bin/ifixai_review.py": {
+      "bytes": 3582,
+      "sha256": "b6eda4e82e1ea26113b6fd7aa2ddd237b2750b689934426bb3f537c77b31b6c6",
+      "source": "plugins/exoverse/bin/ifixai_review.py"
+    },
+    "plugins/exoverse/bin/monitor_study.py": {
+      "bytes": 3599,
+      "sha256": "3ecb9a30cbcb55fac4d1800fcd62f1963fc5241d47cc43621e36c5114ff45f08",
+      "source": "plugins/exoverse/bin/monitor_study.py"
+    },
+    "plugins/exoverse/bin/paired_study.py": {
+      "bytes": 11000,
+      "sha256": "6b2ef25859eae8bd760733314c390e83fc34f58549461fc5ed787d8d93135412",
+      "source": "plugins/exoverse/bin/paired_study.py"
+    },
+    "plugins/exoverse/bin/ruflo_review.py": {
+      "bytes": 7509,
+      "sha256": "13ab525770cf8d60d26a92d26db19f73183ccdd44fb153e394768afc3c4058ba",
+      "source": "plugins/exoverse/bin/ruflo_review.py"
+    },
+    "plugins/exoverse/bin/starter_study.py": {
+      "bytes": 9032,
+      "sha256": "4f30a6ca91630a2b92e8cdc6f41f9508358d900e83d556fc769270f8bbe8c9b8",
+      "source": "plugins/exoverse/bin/starter_study.py"
+    },
+    "plugins/exoverse/mcp.json": {
+      "bytes": 215,
+      "sha256": "3bc26c22d1acc5ca91755f6d42d98a856d16ead6e07e46de336426c15d8b04e6",
+      "source": null
+    },
+    "plugins/exoverse/skills/exoverse-research-team/SKILL.md": {
+      "bytes": 1907,
+      "sha256": "85483b1bf30291e763879c0d79fc0a9d1f00c92173edd4093f2bb904b4ab7a8c",
+      "source": "plugins/exoverse/release/skills/exoverse-research-team/SKILL.md"
+    },
+    "plugins/exoverse/skills/exoverse-research-workbench/SKILL.md": {
+      "bytes": 1947,
+      "sha256": "4d0798aba0a1d67e00a53a82d6528ab546890fb1f934d2af2a6696214a41e789",
+      "source": "plugins/exoverse/release/skills/exoverse-research-workbench/SKILL.md"
+    }
+  },
+  "license": "Apache-2.0",
+  "plugin_version": "0.6.6",
+  "profile": "apache_preview",
+  "schema": "exoverse.narrow-plugin-package.v1",
+  "source_revision": "59fa7bdff8dbdebdab619ab6f4b074f56d3e1b64"
+}

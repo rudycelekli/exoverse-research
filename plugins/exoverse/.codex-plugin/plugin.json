@@ -1,0 +1,14 @@
+{
+  "description": "Run, compare, and independently verify offline research studies.",
+  "interface": {
+    "defaultPrompt": [
+      "Help me make a prediction and run my first offline Exoverse study."
+    ],
+    "displayName": "Exoverse Research",
+    "shortDescription": "Run and verify studies"
+  },
+  "mcpServers": "./mcp.json",
+  "name": "exoverse",
+  "skills": "./skills/",
+  "version": "0.6.6"
+}

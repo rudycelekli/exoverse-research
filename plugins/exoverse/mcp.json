@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "exoverse-starter": {
+      "args": [
+        "bin/exoverse-plugin",
+        "mcp",
+        "starter"
+      ],
+      "command": "python3",
+      "cwd": ".",
+      "type": "stdio"
+    }
+  }
+}
