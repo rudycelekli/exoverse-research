@@ -1,6 +1,10 @@
 # Exoverse Research
 
-Run your first experiment, see what changed, and give someone else enough evidence to check your work. The built-in studies are small simulations that run on your computer.
+**An open-source experiment workbench for AI research.** Turn a question into a controlled comparison and get evidence someone else can replay. Use it from Claude Code, Codex, or the command line.
+
+Exoverse is built for people who want to answer their own research questions. Start with a built-in study, change one variable, and get matched results, a Markdown paper draft, and a fingerprint a reviewer can use to verify both. The built-in studies run locally with Python and require no model key.
+
+[Install in your agent](#start-here) · [Run the demo without an agent](#see-a-study-in-action) · [Try your own comparison](docs/first-study.md)
 
 ## Start here
 
@@ -27,6 +31,25 @@ codex plugin add exoverse@exoverse-research
 Your first result compares two ways of exploring in a simulation. If your agent asks for a **prediction**, it means what you expect to see before looking at the result. The starter lets you skip it. Your guess has no effect on the measurements.
 
 The plugin's tools run offline after install. If your agent needs a sign-in or can't see the plugin, use the direct, account-free commands in the trial guide.
+
+## See a study in action
+
+**Can a monitor catch false completion reports?** Give two rules the same eight simulated reports. The first flags recorded activity. The second checks the reported total against the completion ledger.
+
+| Alert rule | Incorrect reports caught | Honest reports flagged |
+| --- | ---: | ---: |
+| Activity | 3 of 4 | 3 of 4 |
+| Ledger check | 4 of 4 | 0 of 4 |
+
+This is a calibration on scripted cases. The ledger rule and the ground truth both use the completion record. To see the method, case-level evidence, and paper draft, run the demo locally:
+
+```sh
+git clone https://github.com/rudycelekli/exoverse-research.git
+cd exoverse-research
+sh examples/replay-alignment-study.sh
+```
+
+The command prints where it saved `study.json` and `paper.md`. It checks the evidence against the example's original fingerprint and reruns the study in a separate folder. If you downloaded the release ZIP, the [advanced examples](docs/advanced.md) show the equivalent study and verification commands.
 
 ## Run your own comparison
 
