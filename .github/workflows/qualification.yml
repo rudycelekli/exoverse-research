@@ -1,0 +1,31 @@
+name: Offline first-study qualification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  first-study:
+    name: First study (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Exercise the released CLI and MCP entry points
+        run: |
+          python3 --version
+          python3 tests/test_first_study.py -v
+      - name: Replay the alignment demo
+        run: sh examples/replay-alignment-study.sh
