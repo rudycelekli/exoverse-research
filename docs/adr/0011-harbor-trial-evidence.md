@@ -35,3 +35,11 @@ scorecard pending a live judge integration.
 Tests exercise independent CLI verification, successful and failing rubric
 outcomes, rejection of a modified score even after rehashing, and refusal to
 score a trial with an execution exception.
+
+A local smoke check also used Harbor 0.25.0 and Docker 29.9.3 to run two
+provider-free controls on the same synthetic task with internet disabled in
+its Harbor configuration. The task asked each agent to write a review receipt.
+The nop arm earned 0 and the oracle arm earned 1, with zero trial exceptions.
+Exoverse imported both real per-trial records and a separate CLI process
+verified and exported the draft. These controls establish receipt compatibility
+and deterministic scoring for this task. The AI judge was unconfigured.
