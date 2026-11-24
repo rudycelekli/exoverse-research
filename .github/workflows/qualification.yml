@@ -30,6 +30,7 @@ jobs:
           python3 tests/test_workflow_study.py -v
           python3 tests/test_research_project.py -v
           python3 tests/test_research_spec.py -v
+          python3 tests/test_harbor_study.py -v
           python3 tests/test_live_workflow.py -v
       - name: Replay the alignment demo
         run: sh examples/replay-alignment-study.sh
