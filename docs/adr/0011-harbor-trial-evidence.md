@@ -43,3 +43,11 @@ The nop arm earned 0 and the oracle arm earned 1, with zero trial exceptions.
 Exoverse imported both real per-trial records and a separate CLI process
 verified and exported the draft. These controls establish receipt compatibility
 and deterministic scoring for this task. The AI judge was unconfigured.
+
+An independent agent verified the retained smoke bundle offline at source
+revision `0538af8`. The verifier returned `verified: true` for evidence SHA-256
+`153f98253ce85dfbb655a85645f1e2253d1a0833e96681ab5b9110795854fcc0`.
+The agent compared each embedded trial record field-for-field with the original
+Harbor result, confirmed both task checksums matched, and checked that the draft
+reported the original trial IDs, rewards, threshold of 1, and unconfigured judge.
+The independent check did not rerun Harbor or use a model provider.
