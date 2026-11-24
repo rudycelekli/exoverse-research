@@ -69,3 +69,30 @@ an error before writing scored evidence. The verifier checks the original
 fingerprint and replays the recorded actions offline. Replay verifies the
 trajectory and scores, while authentication of the originating model output
 requires separate provider evidence.
+
+## Evaluate the route, not just the outcome
+
+Add `required_states` and `forbidden_states` to your criteria. For example,
+require the agent to visit a review state and forbid bypassing it. Two arms
+can both reach the goal within the deadline while only one meets the rubric.
+The evidence includes which required states were missing and which forbidden
+states were visited. These checks work for both scripted and live comparisons.
+
+## Run and replay in an offline container
+
+Use a trusted local Python 3 image already present in Docker. Resolve its image
+ID once and retain it with the evidence. The example assumes a Python image
+without a custom entrypoint.
+
+```sh
+image_id=$(docker image inspect python:3.12-slim --format '{{.Id}}')
+sh examples/workflow-container.sh "$image_id" run examples/review-workflow.json > evidence.json
+fingerprint=$(shasum -a 256 evidence.json | cut -d ' ' -f 1)
+sh examples/workflow-container.sh "$image_id" verify evidence.json "$fingerprint"
+```
+
+The runner mounts only the plugin executable files and the chosen input file.
+It uses no network, a read-only root, a non-root user, dropped capabilities,
+and bounded CPU, memory and process counts. This path runs scripted policies
+and verifies any supported workflow evidence. Live provider calls require
+their own separately provisioned and audited execution path.

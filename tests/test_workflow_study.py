@@ -11,6 +11,18 @@ LAUNCHER = Path(__file__).resolve().parents[1] / "plugins/exoverse/bin/exoverse-
 
 
 class WorkflowTest(unittest.TestCase):
+    def test_rubric_distinguishes_two_paths_to_same_goal(self):
+        spec = LAUNCHER.parents[3] / "examples/review-workflow.json"
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "result.json"
+            output = subprocess.check_output([str(LAUNCHER), "workflow", "run", str(spec), "--out", str(target)])
+            rows = json.loads(output)["episodes"]
+            self.assertTrue(all(row["final_state"] == "accepted" for row in rows.values()))
+            self.assertEqual(rows["review-first"]["reward"], 1)
+            self.assertEqual(rows["skip-review"]["reward"], 0)
+            self.assertEqual(rows["skip-review"]["criteria"]["missing_required_states"], ["reviewed"])
+            self.assertEqual(rows["skip-review"]["criteria"]["visited_forbidden_states"], ["bypassed"])
+
     def test_author_run_and_verify(self):
         payload = {
             "initial": "requested",

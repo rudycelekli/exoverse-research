@@ -50,6 +50,11 @@
       "sha256": "b4050ebbf38f7ebdad6bc84622619895873a51d9e7e3c039c930c56344118ca4",
       "source": "docs/adr/0005-native-agent-workflow-transport.md"
     },
+    "docs/adr/0006-rubric-and-offline-workflow-container.md": {
+      "bytes": 1387,
+      "sha256": "7041bb3c766c569619a005700c01cc2ce1874ceb0f1ec8c503045b31ea045dae",
+      "source": "docs/adr/0006-rubric-and-offline-workflow-container.md"
+    },
     "docs/advanced.md": {
       "bytes": 2791,
       "sha256": "a8b9c811948e31a2898ccb5674b392f24ddb0974429f5768cf3e98c571464062",
@@ -65,20 +70,40 @@
       "sha256": "1a89342b68aae979c2ab4751a95d1633a43173124c4d839043f92873bcc983b7",
       "source": "docs/model-experiments.md"
     },
+    "docs/research-capabilities.md": {
+      "bytes": 1974,
+      "sha256": "cf267a2df2b11fe9d583f6b43d6991d78166c01a3892ea5480a5d70f8a801390",
+      "source": "docs/research-capabilities.md"
+    },
     "docs/trial-feedback.md": {
       "bytes": 956,
       "sha256": "f82bcaadb5ed6c071d1af97aacbf0830371a6fed957d2a90bcc798699f4f4a44",
       "source": "docs/trial-feedback.md"
     },
     "docs/workflow-study.md": {
-      "bytes": 3108,
-      "sha256": "73c75904999501e50c070b54e9251d37bb681588e8cdb954d4d3a9640f9895b8",
+      "bytes": 4455,
+      "sha256": "a2468f1fc10fb48a588a6e4fcf3d2c518f8b8ce176b557da7c8ed74196d224f2",
       "source": "docs/workflow-study.md"
     },
     "examples/browser/first-environment.html": {
       "bytes": 6634,
       "sha256": "b59bd4dbb25bbc9ac431f019793a4d9e8b7b48bcf0752099216cc3fdae5e691f",
       "source": "examples/browser/first-environment.html"
+    },
+    "examples/replay-alignment-study.sh": {
+      "bytes": 1152,
+      "sha256": "f16a693d88a3271cee7ebce01ccb4d13e24006f36eafabbabcc76b5d19b92db5",
+      "source": "examples/replay-alignment-study.sh"
+    },
+    "examples/review-workflow.json": {
+      "bytes": 561,
+      "sha256": "b8ef074f694015afe09c1b555b14ca2184a1f82e3e7b65da2cf718986d88b97c",
+      "source": "examples/review-workflow.json"
+    },
+    "examples/workflow-container.sh": {
+      "bytes": 1681,
+      "sha256": "b89aa3a628c678ffa89e0e07592961f4406d76f11f60de9ccbdefb10f6ff2832",
+      "source": "examples/workflow-container.sh"
     },
     "plugins/exoverse/.claude-plugin/plugin.json": {
       "bytes": 132,
@@ -166,8 +191,8 @@
       "source": "plugins/exoverse/bin/workflow_agents.py"
     },
     "plugins/exoverse/bin/workflow_study.py": {
-      "bytes": 9030,
-      "sha256": "0493c363b4860b7374791e0e1e1cfd495f6558702549cfb7bd6ec5074f4af235",
+      "bytes": 10473,
+      "sha256": "e47d3032de135f00396ce3bf94b80dc8b208c4650190bd0577afe2e9372d784a",
       "source": "plugins/exoverse/bin/workflow_study.py"
     },
     "plugins/exoverse/mcp.json": {

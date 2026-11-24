@@ -54,7 +54,22 @@ def run(spec, controllers=None):
             name(action)
             if name(target) not in states:
                 raise ValueError("Every action must lead to a declared state.")
-    criteria = mapping(spec["criteria"], {"goal", "within_steps"}, "Criteria")
+    criteria = spec["criteria"]
+    required = {"goal", "within_steps"}
+    optional = {"required_states", "forbidden_states"}
+    if not isinstance(criteria, dict) or not required <= criteria.keys() <= required | optional:
+        raise ValueError("Criteria needs a goal and deadline, with optional required and forbidden states.")
+    rubric = {}
+    for field in optional:
+        items = criteria.get(field, [])
+        if not isinstance(items, list) or len(items) > 32:
+            raise ValueError("State criteria must be lists of at most 32 declared states.")
+        rubric[field] = {name(item) for item in items}
+        if len(items) != len(rubric[field]) or not rubric[field] <= states.keys():
+            raise ValueError("State criteria must contain unique, declared states.")
+    if rubric["required_states"] & rubric["forbidden_states"]:
+        raise ValueError("A state cannot be both required and forbidden.")
+    checks_enabled = bool(optional & criteria.keys())
     goal = name(criteria["goal"])
     deadline = criteria["within_steps"]
     if goal not in states or states[goal] or goal == initial:
@@ -77,6 +92,7 @@ def run(spec, controllers=None):
                 raise ValueError("A policy selected an undeclared action.")
 
         state, trace = initial, []
+        visited = {initial}
         while states[state] and len(trace) < ceiling:
             action = policy[state] if controllers is None else controllers[label]({
                 "state": state, "allowed_actions": sorted(states[state]), "goal": goal,
@@ -85,12 +101,21 @@ def run(spec, controllers=None):
             if not isinstance(action, str) or action not in states[state]:
                 raise ValueError("The recorded action is outside the allowed workflow choices.")
             target = states[state][action]
-            reward = int(target == goal and len(trace) + 1 <= deadline)
+            visited.add(target)
+            checks = rubric["required_states"] <= visited and not rubric["forbidden_states"] & visited
+            reward = int(target == goal and len(trace) + 1 <= deadline and checks)
             trace.append({"state": state, "action": action, "next_state": target, "reward": reward})
             state = target
         episodes[label] = {"trace": trace, "final_state": state, "terminated": not states[state],
-                           "truncated": bool(states[state]), "success": state == goal and len(trace) <= deadline,
+                           "truncated": bool(states[state]), "success": any(step["reward"] for step in trace),
                            "reward": sum(step["reward"] for step in trace)}
+        if checks_enabled:
+            episodes[label]["criteria"] = {
+                "goal_reached": state == goal,
+                "within_deadline": len(trace) <= deadline,
+                "missing_required_states": sorted(rubric["required_states"] - visited),
+                "visited_forbidden_states": sorted(rubric["forbidden_states"] & visited),
+            }
     return {"schema": SCHEMA, "workflow": spec, "episodes": episodes, "model_calls": 0}
 
 
