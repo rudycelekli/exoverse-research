@@ -31,3 +31,45 @@ rules first. Where a rubric needs judgment, version the judge and rubric,
 blind arm labels, calibrate against human examples and allow abstention.
 A paper export should cite the evidence behind every reported result and show
 sample counts, failures, uncertainty and the limits of the design.
+
+## Freeze and verify a branch
+
+Use a JSON protocol with `question`, `hypothesis`, `environment`, `rubric`,
+`judge`, `seeds`, `budget_microusd`, `stopping_rule` and `variables`.
+Use a judge object describing the intended evaluator, or null for a
+deterministic-only study. Put the intervention in a named member of
+`variables`. For example, a memory architecture can be a single structured
+variable. Prespecify smaller ablations if the combination wins.
+
+```sh
+exoverse-plugin spec freeze protocol.json --out baseline.json
+exoverse-plugin spec branch baseline.json prompt new-prompt.json \
+  --parent-sha256 "$baseline_sha" --out candidate.json
+exoverse-plugin spec verify baseline.json candidate.json \
+  --parent-sha256 "$baseline_sha" --candidate-sha256 "$candidate_sha"
+```
+
+Take the hash values from the corresponding commands and keep them with the
+study record. The replacement file contains the new JSON value for the
+variable. An independent agent can run the last command with the artifacts
+and the retained fingerprints. This checks protocol lineage. Harbor and judge
+execution receipts are separate integrations.
+
+## From prior work to a new method
+
+- Extract a paper's method and assumptions, then reproduce an executable
+  baseline before proposing a modification. Paper2Agent is an upstream
+  example of turning paper methods into usable tools.
+  [Paper2Agent](https://github.com/jmiao24/Paper2Agent)
+- Treat the scoring or training rule as an intervention. Snorkel's binary-gated
+  GRPO experiment suggests a reusable design for rare successes: compare
+  algorithms under comparable data and rollout budgets, with separate held-out
+  tasks. Its single training run per method also makes replication across seeds
+  a useful follow-up. [Snorkel GDPval study](https://snorkel.ai/blog/gdpval-agents-rare-success/)
+- Study concision as an efficiency intervention. Record accuracy, output
+  tokens and latency, and set the required accuracy level before selecting
+  a candidate. [Concise Reasoning](https://github.com/ai-wand/concise-reasoning)
+
+Record the closest prior work, proposed mechanism and result that would
+falsify it. A candidate earns a narrower novelty claim when the evidence
+survives held-out tests, ablations and independent reproduction.
