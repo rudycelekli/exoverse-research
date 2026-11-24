@@ -66,7 +66,8 @@ See [advanced examples](docs/advanced.md) for monitoring incorrect completion re
 The 0.6.7 candidate can analyze matched scores, score supplied answers against
 a locked reference key, collect paired outputs from local Ollama, and verify
 the complete experiment. See the [model experiment guide](docs/model-experiments.md) for commands. Start with the [workflow study guide](docs/workflow-study.md)
-to model a workflow with its own actions and success criteria.
+to model a workflow with its own actions and success criteria. Run it with
+scripted policies or compare action choices from installed Claude Code and Codex.
 
 ## Version and license
 
