@@ -1,0 +1,21 @@
+name: Offline RL browser
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  first-environment:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - run: npm install --prefix "$RUNNER_TEMP/browser-test" --no-audit --no-fund --ignore-scripts playwright@1.64.1
+      - run: node "$RUNNER_TEMP/browser-test/node_modules/playwright/cli.js" install chromium
+      - run: NODE_PATH="$RUNNER_TEMP/browser-test/node_modules" node tests/first-environment-browser.cjs

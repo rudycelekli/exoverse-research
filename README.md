@@ -6,6 +6,10 @@ Exoverse is built for people who want to answer their own research questions. St
 
 [Install in your agent](#start-here) · [Run the demo without an agent](#see-a-study-in-action) · [Try your own comparison](docs/first-study.md)
 
+## Run an RL environment in your browser
+
+Open [first-environment.html](examples/browser/first-environment.html) from your downloaded source folder. Choose **Run both policies** to see each step, action and reward. Download the evidence and verify it in a second browser window using the original fingerprint. The page is self-contained and runs offline without an agent account.
+
 ## Start here
 
 1. Open a new empty project folder. You'll need Claude Code or Codex CLI and Python 3.9 or newer. Check Python with `python3 --version`.
