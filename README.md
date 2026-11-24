@@ -72,3 +72,5 @@ scripted policies or compare action choices from installed Claude Code and Codex
 ## Version and license
 
 [Exoverse Research 0.6.6](https://github.com/rudycelekli/exoverse-research/releases/tag/v0.6.6) is released under Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). The release page provides the ZIP and its checksum. The package manifest records the contents of that ZIP.
+
+Keep related workflow studies together and export a replay-checked draft with [research projects](docs/research-projects.md).
