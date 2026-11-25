@@ -34,11 +34,24 @@ def compare(baseline, candidate, trials, parent_sha):
         raise ValueError("Pin the Harbor task checksum and provide two distinct trials.")
     results = []
     for arm, spec, trial in zip(("baseline", "candidate"), (baseline, candidate), trials):
-        agent = name(spec["protocol"]["variables"]["agent"])
+        selection = spec["protocol"]["variables"]["agent"]
+        if isinstance(selection, dict):
+            mapping(selection, {"name", "import_path"}, "Custom Harbor agent")
+            agent = name(selection["name"])
+            import_path = selection["import_path"]
+            if not isinstance(import_path, str) or not import_path:
+                raise ValueError("Pin the custom Harbor agent import path.")
+            # Harbor 0.25 stores a CLI custom agent import path in the name field.
+            configured = ({"name": import_path, "import_path": None}
+                          if trials[0]["config"]["agent"]["name"] is not None
+                          else {"name": None, "import_path": import_path})
+        else:
+            agent = name(selection)
+            configured = {"name": agent}
         if (trial["task_name"] != env["task_name"] or trial["task_checksum"] != env["task_checksum"]
-                or trial["agent_info"]["name"] != agent or trial["config"]["agent"]["name"] != agent):
+                or trial["agent_info"]["name"] != agent):
             raise ValueError(f"{arm} trial differs from its frozen task or agent.")
-        if trial["config"]["agent"] != {**trials[0]["config"]["agent"], "name": agent}:
+        if trial["config"]["agent"] != {**trials[0]["config"]["agent"], **configured}:
             raise ValueError("Harbor agent settings besides the name differ between arms.")
         if trial["config"]["environment"] != trials[0]["config"]["environment"]:
             raise ValueError("Harbor environment settings differ between arms.")

@@ -1,0 +1,3 @@
+version = "1.0"
+[environment]
+allow_internet = false

@@ -1,0 +1,7 @@
+{
+  "q1":{"source":"ops-1","answer":"30 days","span":"Juniper retention is 30 days."},
+  "q2":{"source":"ops-2","answer":"7 days","span":"Cedar retention is 7 days."},
+  "q3":{"source":"ops-3","answer":"Platform","span":"Juniper is owned by Platform."},
+  "q4":null,
+  "q5":null
+}
