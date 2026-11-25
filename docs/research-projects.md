@@ -119,3 +119,15 @@ and replay each raw answer score with standard Python:
 python examples/harbor/retrieval/tests/score.py path/to/verifier/answers.json \
   examples/harbor/retrieval/tests/labels.json examples/harbor/retrieval/environment/corpus.json
 ```
+
+To check the complete retained run, use the same reviewed source revision and
+retain the SHA-256 of both `evidence.json` and `verification.json` when you
+first receive them. Pass those fingerprints to the offline verifier:
+
+```sh
+python3 examples/harbor/run_retrieval_study.py ./retrieval-run --verify \
+  --evidence-sha256 "$evidence_sha" --receipt-sha256 "$receipt_sha"
+```
+
+The command checks both Harbor records, raw answers, recomputed scores and the
+paper. It runs with standard Python and needs no model key, Docker or Harbor.
