@@ -1,0 +1,9 @@
+{
+  "main_revision": "7d3b23a05f02728b5fa5ea601511d58faa8e614d",
+  "merged_prs": [3, 4],
+  "independent_source_review": "passed",
+  "main_ci": "passed",
+  "browser_steps_per_arm": 30,
+  "live_agent_comparison": "pending",
+  "unaided_first_study": "pending"
+}
