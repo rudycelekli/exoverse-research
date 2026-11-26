@@ -1,0 +1,10 @@
+{
+  "main_revision": "17b402ab6ddbc8eae424430f833097ecf52974d9",
+  "hosted_run": 45785294301,
+  "review": "independent_agent",
+  "cases": 8,
+  "model_calls": 0,
+  "scope": "scripted_source_replay",
+  "independent_package_qualification": "pending",
+  "live_benchmark_qualification": "pending"
+}
