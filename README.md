@@ -70,4 +70,4 @@ to model a workflow with its own actions and success criteria.
 
 ## Version and license
 
-[Exoverse Research 0.6.6](https://github.com/rudycelekli/exoverse-research/releases/tag/v0.6.6) is released under Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). The release page provides the ZIP and its checksum. The package manifest records the contents of that ZIP.
+[Exoverse Research 0.6.6](https://github.com/rudycelekli/exoverse-research/releases/tag/v0.6.6) is released under Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). The release page provides the published ZIP and its checksum. The ZIP contains its own manifest. The checked-in manifest records an earlier 0.6.7 candidate snapshot. A fresh release build needs its own manifest and qualification.
