@@ -142,3 +142,7 @@ baseline protocol before launching Harbor. The candidate inherits that
 fingerprint. The offline verifier reports `inputs_frozen: true` only when the
 receipt's input manifest matches the frozen protocol. Earlier runs retain
 their existing verification behavior and report `inputs_frozen: false`.
+
+The offline verifier also returns a `questions` array. Each entry shows the
+expected source span or abstention, both submissions and the outcome for each
+arm. Use it to review the individual cases behind the aggregate score.

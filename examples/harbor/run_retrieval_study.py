@@ -113,6 +113,32 @@ def score_trials(trials, task):
     return checks
 
 
+def question_results(trials, task, receipt):
+    label_bytes = (task / "tests/labels.json").read_bytes()
+    input_hashes = receipt.get("input_sha256")
+    if input_hashes is not None:
+        if hashlib.sha256(label_bytes).hexdigest() != input_hashes["tests/labels.json"]:
+            raise ValueError("Question labels changed during verification.")
+    labels = json.loads(label_bytes)
+    predictions = {}
+    for trial in trials:
+        arm = trial.parent.parent.name
+        answer_bytes = (trial.parent / "verifier/answers.json").read_bytes()
+        if hashlib.sha256(answer_bytes).hexdigest() != receipt["answer_checks"][arm]["answers_sha256"]:
+            raise ValueError("Question answers changed during verification.")
+        predictions[arm] = json.loads(answer_bytes)
+    rows = []
+    for question, label in labels.items():
+        expected = {key: label[key] for key in ("source", "answer")} if label is not None else None
+        arms = {}
+        for arm, answers in predictions.items():
+            answer = answers[question]
+            arms[arm] = {"submitted": answer, "passed": answer == expected}
+        rows.append({"question_id": question, "criterion": "abstention" if label is None else "citation_support",
+                     "expected": label, "arms": arms})
+    return rows
+
+
 def verify(output, evidence_sha256, receipt_sha256):
     evidence = output / "evidence.json"
     receipt_bytes = (output / "verification.json").read_bytes()
@@ -151,7 +177,8 @@ def verify(output, evidence_sha256, receipt_sha256):
     if score_trials(trials, task) != receipt["answer_checks"]:
         raise ValueError("The raw answers differ from the verified scores or fingerprints.")
     return {"verified": True, "evidence_sha256": evidence_sha256,
-            "inputs_verified": "input_sha256" in receipt, "inputs_frozen": frozen_manifest is not None, "answer_checks": receipt["answer_checks"]}
+            "inputs_verified": "input_sha256" in receipt, "inputs_frozen": frozen_manifest is not None, "answer_checks": receipt["answer_checks"],
+            "questions": question_results(trials, task, receipt)}
 
 
 if __name__ == "__main__":
