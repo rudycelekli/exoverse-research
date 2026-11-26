@@ -26,3 +26,8 @@ the retained answer text, so apply the same sharing rules as the raw artifacts.
 
 Verify the real frozen-manifest run and confirm that question outcomes
 reconstruct both arms' aggregate scores.
+
+Question rows parse the same answer bytes they hash against the verified
+receipt. Retained labels receive the same check. The regression changes
+answer or label bytes after the receipt is prepared and confirms review
+refuses them before displaying outcomes.
