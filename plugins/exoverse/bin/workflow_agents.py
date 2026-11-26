@@ -13,6 +13,11 @@ from pathlib import Path
 SCHEMA = {"type": "object", "properties": {"action": {"type": "string"}},
           "required": ["action"], "additionalProperties": False}
 PROMPT = "Choose one allowed action for this observation. Return only the action JSON. Do not use tools."
+COMMON_ENV = ("PATH", "HOME", "TMPDIR")
+AGENT_ENV = {
+    "claude": ("ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL", "CLAUDE_CODE_OAUTH_TOKEN"),
+    "codex": ("CODEX_HOME", "OPENAI_API_KEY", "OPENAI_BASE_URL"),
+}
 
 
 def _call(args, work, env, prompt=None):
@@ -42,13 +47,12 @@ def connector(host, work):
     executable = shutil.which(host)
     if not executable:
         raise ValueError(f"Install and authenticate {host} before running a live workflow.")
-    keys = ("PATH", "HOME", "CODEX_HOME", "ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL",
-            "OPENAI_API_KEY", "OPENAI_BASE_URL", "TMPDIR", "CLAUDE_CODE_OAUTH_TOKEN")
-    env = {key: os.environ[key] for key in keys if key in os.environ}
+    env = {key: os.environ[key] for key in COMMON_ENV if key in os.environ}
     env.update(DISABLE_TELEMETRY="1", CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1")
     version = _call([executable, "--version"], work, env).strip()
     if not version or len(version) > 160:
         raise ValueError("Agent version could not be identified.")
+    env.update({key: os.environ[key] for key in AGENT_ENV[host] if key in os.environ})
     schema = work / "action.schema.json"
     schema.write_text(json.dumps(SCHEMA))
 
