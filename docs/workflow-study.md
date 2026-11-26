@@ -63,6 +63,10 @@ runs with the shell and web search disabled and the read-only sandbox selected.
 The workflow is isolated from the model processes by this action interface.
 These adapters use your installed CLIs and credentials. They do not place
 the native CLIs in Exoverse-managed containers.
+Each action-selection process receives only its own provider's credential and
+endpoint variables. The version probes receive neither provider's variables.
+The CLIs still use your host home directory and must be trusted as local
+executables.
 
 If a CLI fails, times out, or returns an invalid action, the run exits with
 an error before writing scored evidence. The verifier checks the original
