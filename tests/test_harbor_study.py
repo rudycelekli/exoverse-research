@@ -57,10 +57,20 @@ class HarborStudyTest(unittest.TestCase):
             verified = cli("harbor", "verify", evidence, "--sha256", imported["sha256"], "--draft", draft)
             self.assertTrue(verified["verified"])
             self.assertIn(imported["sha256"], draft.read_text())
-            corrupted = json.loads(evidence.read_bytes())
+            canonical_evidence = evidence.read_bytes()
+            corrupted = json.loads(canonical_evidence)
             corrupted["results"][0]["passed"] = True
             write("evidence", corrupted)
             cli("harbor", "verify", evidence, "--sha256", hashlib.sha256(evidence.read_bytes()).hexdigest(), code=1)
+            extra = json.loads(canonical_evidence)
+            extra["trials"].append(trial("extra", 0))
+            write("evidence", extra)
+            cli("harbor", "verify", evidence, "--sha256", hashlib.sha256(evidence.read_bytes()).hexdigest(), code=1)
+            drifted = trial("oracle", 1)
+            drifted["config"]["extra_instructions"] = "The agent received additional instructions."
+            write("right", drifted)
+            cli("harbor", "import", base, candidate, left, right,
+                "--parent-sha256", parent, "--candidate-sha256", child, "--out", root / "drifted", code=1)
             failed = trial("oracle", 0)
             failed["exception_info"] = {"exception_type": "SetupFailed"}
             write("right", failed)
