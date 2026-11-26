@@ -19,3 +19,7 @@ The example requires a checkout, a POSIX shell, and Python 3.9 or newer. It leav
 ## Validation
 
 The example passed on macOS with Python 3.9.6 from an exported source checkout. Both the source and output paths contained spaces. An outbound socket probe was denied. The example verified eight paired cases, reproduced both files byte for byte, and made zero model calls. The README counts matched the generated paper. The verifier rejected an edited copy of that paper.
+
+The public pull request and main branch run the same replay script in GitHub
+Actions. The job checks the retained fingerprint and compares both the study
+and paper against a second local run.

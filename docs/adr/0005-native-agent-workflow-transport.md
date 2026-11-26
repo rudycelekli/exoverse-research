@@ -20,4 +20,4 @@ Live use requires separately configured agent credentials and may incur costs. T
 
 ## Validation
 
-Exercise both adapter contracts with offline stand-ins, enforce explicit opt-in, check identical criteria, and reject rehashed tampering. Check supported flags against the installed native CLI help. Live provider qualification requires an authorized route and budget.
+Exercise both adapter contracts with offline stand-ins, enforce explicit opt-in, check identical criteria, and reject rehashed tampering. Use synthetic credential variables to check that each action-selection process receives only its own provider's variables and that version probes receive neither provider's variables. Check supported flags against the installed native CLI help. Live provider qualification requires an authorized route and budget.
