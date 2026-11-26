@@ -33,3 +33,8 @@ each adjacent pair when reviewing a longer lineage.
 The CLI integration test freezes and branches from separate processes.
 It verifies the branch, confirms the parent bytes stayed intact and rejects
 a candidate with a modified rubric even when its fingerprint is updated.
+
+Branching and verification require the exact canonical baseline bytes from
+freeze. Duplicate JSON keys are refused before parsing can collapse them.
+The regression checks that whitespace and a conflicting duplicate schema
+cannot be accepted using the unchanged retained baseline fingerprint.

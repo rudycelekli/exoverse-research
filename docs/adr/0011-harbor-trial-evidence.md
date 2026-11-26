@@ -51,3 +51,8 @@ The agent compared each embedded trial record field-for-field with the original
 Harbor result, confirmed both task checksums matched, and checked that the draft
 reported the original trial IDs, rewards, threshold of 1, and unconfigured judge.
 The independent check did not rerun Harbor or use a model provider.
+
+The importer and offline verifier require exactly two trial records and
+compare the complete execution settings outside the agent and Harbor's job
+bookkeeping fields. Both frozen inputs must have canonical bytes. Tests
+reject extra trial records and changes to trial-level instructions.
