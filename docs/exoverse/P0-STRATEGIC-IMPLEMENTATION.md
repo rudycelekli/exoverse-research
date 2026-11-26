@@ -26,3 +26,15 @@
 - The research lane must verify a bounded route for both live arms and a
   researcher-authored rubric before the paid comparison. Keep the offline
   source flow as the zero-budget control.
+
+## Research evidence wave follow-up
+
+- Release lane: build twice from the same exact version and source revision,
+  compare archive bytes, then exercise both agent hosts, the offline browser
+  example and Harbor from the extracted package. Record each coverage lane.
+- Onboarding lane: route researchers to project, spec and Harbor commands in
+  the installed research skill. An unaided researcher should be able to run
+  a study and hand off evidence a second person can verify without a key.
+- Runtime lane: keep live comparisons gated on a verified provider route,
+  shared durable reservation, gateway-only network access and approved
+  scoring rubric. Confirm a request can never bypass its reservation.

@@ -1,6 +1,6 @@
 ---
 name: exoverse-research-workbench
-description: Turn a new user's question into an offline Exoverse experiment, a reproducible result, and a paper draft. Use for research questions, measuring behavior, comparing variants, and evidence review.
+description: Run and review Exoverse studies, save research projects, freeze and branch protocols, or verify Harbor trial evidence and reproduce a paper draft.
 ---
 
 # Research workbench
@@ -51,6 +51,28 @@ cases fixed and vary only the system prompt. If the collection is
 incomplete, report an execution failure. Give the researcher the experiment
 fingerprint and confirm `experiment verify` in a second project. Keep
 prompts and raw responses local by default.
+
+## Projects, frozen protocols, and Harbor evidence
+
+- To keep studies for a question together, run `project DATABASE init`,
+  then `project DATABASE run WORKFLOW`. Use `list` to find the saved
+  fingerprints and `draft OUTPUT` to replay the results before export.
+- To write a protocol before collecting results, use `spec freeze`.
+  Retain its printed fingerprint, then use `spec branch` to replace one
+  declared variable. Give the reviewer the baseline and candidate files
+  plus both original fingerprints for `spec verify`.
+- For completed Harbor trials, use `harbor import` with the frozen specs,
+  their fingerprints, and the two per-trial results. Use `harbor verify`
+  with the retained evidence fingerprint to replay the score and export a
+  draft. Keep failed executions distinct from completed runs that score zero.
+
+Run these commands with `python3` and the plugin's `bin/exoverse-plugin`
+path. From a release ZIP root that path is `plugins/exoverse/bin/exoverse-plugin`.
+For an installed skill, locate `bin/exoverse-plugin` under the same plugin
+directory as the skill. These commands are CLI routes. Use their `--help`
+and the extracted ZIP's `docs/research-projects.md` for arguments and
+examples. The retrieved evidence can be verified offline. A configured
+judge in a frozen spec records intent until judge execution is evidenced.
 
 For other questions, identify the environment, the single proposed change,
 the baseline, available evidence and the resolver for the outcome. Label
