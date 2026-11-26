@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -12,6 +13,25 @@ from tempfile import TemporaryDirectory
 ROOT = Path(__file__).resolve().parents[2]
 TASK = Path(__file__).resolve().with_name("retrieval")
 PLUGIN = ROOT / "plugins/exoverse/bin/exoverse-plugin"
+
+TASK_FILES = (
+    "task.toml", "instruction.md", "policies.py", "environment/Dockerfile",
+    "environment/corpus.json", "environment/questions.json", "environment/policy.py",
+    "tests/labels.json", "tests/score.py", "tests/test.sh",
+)
+
+
+def input_hashes(task):
+    return {name: hashlib.sha256((task / name).read_bytes()).hexdigest() for name in TASK_FILES}
+
+
+def retain_task(output):
+    snapshot = output / TASK.name
+    for name in TASK_FILES:
+        target = snapshot / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(TASK / name, target)
+    return snapshot
 
 
 def cli(*args):
@@ -27,11 +47,13 @@ def main(output):
     from harbor.models.task.task import Task
 
     output.mkdir(mode=0o700)
+    task = retain_task(output)
+    inputs = input_hashes(task)
     protocol_path = output / "protocol.json"
     protocol_path.write_text(json.dumps({
         "question": "Does grounded fallback improve citation support and abstention?",
         "hypothesis": "Grounded fallback improves both scores on this frozen synthetic corpus.",
-        "environment": {"adapter": "harbor", "task_name": TASK.name, "task_checksum": Task(TASK).checksum},
+        "environment": {"adapter": "harbor", "task_name": TASK.name, "task_checksum": Task(task).checksum},
         "rubric": {"minimum_rewards": {"citation_support": 1, "abstention": 1}},
         "judge": None,
         "seeds": [0],
@@ -47,30 +69,32 @@ def main(output):
                 "--out", candidate)["sha256"]
     env = {key: os.environ[key] for key in ("PATH", "HOME", "USER", "TMPDIR", "DOCKER_HOST")
            if key in os.environ}
-    env.update(PYTHONPATH=str(TASK), PYTHONDONTWRITEBYTECODE="1")
+    env.update(PYTHONPATH=str(task), PYTHONDONTWRITEBYTECODE="1")
     trials = []
     for arm in ("Direct", "Grounded"):
-        subprocess.run(["harbor", "run", "-p", str(TASK), "-a", f"policies:{arm}",
+        subprocess.run(["harbor", "run", "-p", str(task), "-a", f"policies:{arm}",
                         "--jobs-dir", str(output / "jobs"), "--job-name", arm], check=True, env=env)
         trial, = (output / "jobs" / arm).glob("*/result.json")
         trials.append(trial)
     evidence = output / "evidence.json"
     report = cli("harbor", "import", baseline, candidate, *trials, "--parent-sha256", parent,
                  "--candidate-sha256", child, "--out", evidence)
-    checks = score_trials(trials)
+    if input_hashes(task) != inputs:
+        raise ValueError("Study inputs changed after freezing.")
+    checks = score_trials(trials, task)
     cli("harbor", "verify", evidence, "--sha256", report["sha256"], "--draft", output / "paper.md")
     (output / "verification.json").write_text(json.dumps({"evidence_sha256": report["sha256"],
-                                                          "answer_checks": checks}, indent=2) + "\n")
+                                                          "answer_checks": checks, "input_sha256": inputs}, indent=2) + "\n")
     print(json.dumps(report, indent=2))
 
 
-def score_trials(trials):
+def score_trials(trials, task):
     checks = {}
     for trial in trials:
         answers = trial.parent / "verifier/answers.json"
         score = json.loads(subprocess.check_output([
-            sys.executable, str(TASK / "tests/score.py"), str(answers), str(TASK / "tests/labels.json"),
-            str(TASK / "environment/corpus.json"),
+            sys.executable, str(TASK / "tests/score.py"), str(answers), str(task / "tests/labels.json"),
+            str(task / "environment/corpus.json"),
         ]))
         recorded = load(trial)["verifier_result"]["rewards"]
         if score != recorded:
@@ -101,9 +125,19 @@ def verify(output, evidence_sha256, receipt_sha256):
     trials = [direct, grounded]
     if [load(trial) for trial in trials] != load(evidence)["trials"]:
         raise ValueError("The raw Harbor receipts differ from the embedded trial records.")
-    if score_trials(trials) != receipt["answer_checks"]:
+    task = TASK
+    if "input_sha256" in receipt:
+        task = output / TASK.name
+        inputs = receipt["input_sha256"]
+        if input_hashes(task) != inputs:
+            raise ValueError("Retained study inputs differ from their fingerprints.")
+        trusted_scorer = hashlib.sha256((TASK / "tests/score.py").read_bytes()).hexdigest()
+        if trusted_scorer != inputs["tests/score.py"]:
+            raise ValueError("Use a trusted checkout of the original evaluation code.")
+    if score_trials(trials, task) != receipt["answer_checks"]:
         raise ValueError("The raw answers differ from the verified scores or fingerprints.")
-    return {"verified": True, "evidence_sha256": evidence_sha256, "answer_checks": receipt["answer_checks"]}
+    return {"verified": True, "evidence_sha256": evidence_sha256,
+            "inputs_verified": "input_sha256" in receipt, "answer_checks": receipt["answer_checks"]}
 
 
 if __name__ == "__main__":
