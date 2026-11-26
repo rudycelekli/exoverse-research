@@ -6,13 +6,13 @@ Download and extract the [0.6.6 release ZIP](https://github.com/rudycelekli/exov
 
 Run a second template with honest and incorrect reports from the same
 simulated completion ledger. The only change is which signal the monitor
-uses. Compare missed reports as well as false alarms.
+uses. Compare missed reports as well as false alarms. Set `monitor_sha` to the fingerprint printed by the run before invoking verify.
 
 ```sh
 plugins/exoverse/bin/exoverse-plugin paired run --template monitor \
   --question 'Will the ledger signal reduce false alarms?' \
   --baseline activity --treatment ledger --prediction lower --out monitor-study
-plugins/exoverse/bin/exoverse-plugin paired verify monitor-study --sha256 <printed-digest>
+plugins/exoverse/bin/exoverse-plugin paired verify monitor-study --sha256 "${monitor_sha:?Set monitor_sha from the monitor run}"
 ```
 
 ## Get an independent local review
@@ -22,7 +22,7 @@ any adapters:
 
 ```sh
 plugins/exoverse/bin/exoverse-plugin review monitor-study \
-  --sha256 <retained-digest> --out local-review
+  --sha256 "${monitor_sha:?Set monitor_sha from the monitor run}" --out local-review
 ```
 
 For the optional external policy evaluator and local task tracking, set up
@@ -35,7 +35,7 @@ python3.12 -m venv .ifixai-review
 mkdir review-tools
 npm --prefix review-tools install --ignore-scripts ruflo@3.80.0 @claude-flow/cli@3.80.0
 plugins/exoverse/bin/exoverse-plugin review monitor-study \
-  --sha256 <retained-digest> --out adapter-review \
+  --sha256 "${monitor_sha:?Set monitor_sha from the monitor run}" --out adapter-review \
   --ifixai-python "$PWD/.ifixai-review/bin/python" \
   --ruflo "$PWD/review-tools/node_modules/.bin/ruflo"
 ```

@@ -41,11 +41,15 @@ deterministic-only study. Put the intervention in a named member of
 `variables`. For example, a memory architecture can be a single structured
 variable. Prespecify smaller ablations if the combination wins.
 
+Run from the extracted package root. After each freeze or branch command,
+set `baseline_sha` or `candidate_sha` to its printed SHA-256 before
+running the command that uses it.
+
 ```sh
-exoverse-plugin spec freeze protocol.json --out baseline.json
-exoverse-plugin spec branch baseline.json prompt new-prompt.json \
+python3 plugins/exoverse/bin/exoverse-plugin spec freeze protocol.json --out baseline.json
+python3 plugins/exoverse/bin/exoverse-plugin spec branch baseline.json prompt new-prompt.json \
   --parent-sha256 "$baseline_sha" --out candidate.json
-exoverse-plugin spec verify baseline.json candidate.json \
+python3 plugins/exoverse/bin/exoverse-plugin spec verify baseline.json candidate.json \
   --parent-sha256 "$baseline_sha" --candidate-sha256 "$candidate_sha"
 ```
 
@@ -84,12 +88,13 @@ verifier metric names to passing thresholds. Arrange for the task verifier to
 emit those metrics.
 
 Run each arm in Harbor using the same task and environment settings. Feed the
-per-trial results into Exoverse after both finish.
+per-trial results into Exoverse after both finish. Set `evidence_sha` to
+the SHA-256 printed by import before running verify.
 
 ```sh
-exoverse-plugin harbor import baseline.json candidate.json baseline/result.json candidate/result.json \
+python3 plugins/exoverse/bin/exoverse-plugin harbor import baseline.json candidate.json baseline/result.json candidate/result.json \
   --parent-sha256 "$baseline_sha" --candidate-sha256 "$candidate_sha" --out harbor-evidence.json
-exoverse-plugin harbor verify harbor-evidence.json --sha256 "$evidence_sha" --draft paper.md
+python3 plugins/exoverse/bin/exoverse-plugin harbor verify harbor-evidence.json --sha256 "$evidence_sha" --draft paper.md
 ```
 
 The verifier needs the bundle and its separately retained fingerprint.
