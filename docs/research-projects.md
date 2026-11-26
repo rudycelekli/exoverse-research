@@ -73,3 +73,26 @@ execution receipts are separate integrations.
 Record the closest prior work, proposed mechanism and result that would
 falsify it. A candidate earns a narrower novelty claim when the evidence
 survives held-out tests, ablations and independent reproduction.
+
+## Import a Harbor agent comparison
+
+Freeze `environment` with `adapter: "harbor"`, `task_name` and
+`task_checksum` as reported by Harbor. Declare `variables.agent` and branch
+that variable to the candidate agent. Use `seeds: [0]` for this one-trial,
+unseeded importer. Define `rubric.minimum_rewards` as a mapping from Harbor
+verifier metric names to passing thresholds. Arrange for the task verifier to
+emit those metrics.
+
+Run each arm in Harbor using the same task and environment settings. Feed the
+per-trial results into Exoverse after both finish.
+
+```sh
+exoverse-plugin harbor import baseline.json candidate.json baseline/result.json candidate/result.json \
+  --parent-sha256 "$baseline_sha" --candidate-sha256 "$candidate_sha" --out harbor-evidence.json
+exoverse-plugin harbor verify harbor-evidence.json --sha256 "$evidence_sha" --draft paper.md
+```
+
+The verifier needs the bundle and its separately retained fingerprint.
+Drafts replay deterministic scores and display judge status. Review trial
+configuration and paths before sharing a bundle. A judge configuration in
+the spec records research intent, and live judge evaluation is pending.
