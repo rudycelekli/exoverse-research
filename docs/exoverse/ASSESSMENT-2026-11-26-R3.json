@@ -1,0 +1,12 @@
+{
+  "main_revision": "42dbd02f3d11e10fe43e04df6aeb3169631b9197",
+  "independent_source_review": "passed",
+  "hosted_qualification_run": 45875697865,
+  "hosted_replay_run": 45875697866,
+  "browser_pr_head_run": 45875614032,
+  "python_tests_executed": 11,
+  "retained_harbor_questions": 5,
+  "exact_package_qualification": "in_progress",
+  "unaided_researcher_acceptance": "pending",
+  "live_provider_comparison": "pending"
+}
