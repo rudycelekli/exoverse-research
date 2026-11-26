@@ -14,6 +14,18 @@ from starter_study import serve
 def main(argv):
     if argv == ["mcp", "starter"]:
         return serve()
+    if argv[:1] == ["harbor"]:
+        from harbor_study import cli as harbor_cli
+
+        return harbor_cli(argv[1:])
+    if argv[:1] == ["spec"]:
+        from research_spec import cli as spec_cli
+
+        return spec_cli(argv[1:])
+    if argv[:1] == ["project"]:
+        from research_project import cli as project_cli
+
+        return project_cli(argv[1:])
     if argv[:1] == ["workflow"]:
         from workflow_study import cli as workflow_cli
 
@@ -28,7 +40,7 @@ def main(argv):
         return paired_cli(argv[1:])
     if argv[:1] == ["review"]:
         return review_cli(argv[1:])
-    print("Usage: exoverse-plugin starter [run|verify] | paired [run|analyze|key|score|verify|reproduce] | experiment [run|verify] | collect | workflow [run|live|verify] | review | mcp starter")
+    print("Usage: exoverse-plugin harbor [import|verify] | spec [freeze|branch|verify] | project DATABASE [init|run|list|draft] | starter [run|verify] | paired [run|analyze|key|score|verify|reproduce] | experiment [run|verify] | collect | workflow [run|live|verify] | review | mcp starter")
     return 0 if argv in ([], ["--help"]) else 2
 
 

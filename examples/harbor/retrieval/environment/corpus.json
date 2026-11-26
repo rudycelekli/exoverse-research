@@ -1,0 +1,5 @@
+[
+  {"id":"ops-1","entity":"Juniper","field":"retention","value":"30 days","text":"Juniper retention is 30 days."},
+  {"id":"ops-2","entity":"Cedar","field":"retention","value":"7 days","text":"Cedar retention is 7 days."},
+  {"id":"ops-3","entity":"Juniper","field":"owner","value":"Platform","text":"Juniper is owned by Platform."}
+]

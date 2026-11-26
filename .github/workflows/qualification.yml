@@ -26,8 +26,6 @@ jobs:
       - name: Exercise the released CLI and MCP entry points
         run: |
           python3 --version
-          python3 tests/test_first_study.py -v
-          python3 tests/test_workflow_study.py -v
-          python3 tests/test_live_workflow.py -v
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Replay the alignment demo
         run: sh examples/replay-alignment-study.sh

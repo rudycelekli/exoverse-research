@@ -10,15 +10,28 @@ import unittest
 from pathlib import Path
 
 PLUGIN = Path(__file__).resolve().parents[1] / "plugins/exoverse/bin/exoverse-plugin"
+CREDENTIALS = {
+    "ANTHROPIC_API_KEY": "fixture-anthropic-key",
+    "ANTHROPIC_BASE_URL": "https://anthropic.example.invalid",
+    "CLAUDE_CODE_OAUTH_TOKEN": "fixture-claude-token",
+    "OPENAI_API_KEY": "fixture-openai-key",
+    "OPENAI_BASE_URL": "https://openai.example.invalid",
+    "CODEX_HOME": "fixture-codex-home",
+}
 ADAPTER = """
 import json, os, sys
 from pathlib import Path
 
 host = Path(sys.argv[0]).name
 args = sys.argv[1:]
+anthropic = {"ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL", "CLAUDE_CODE_OAUTH_TOKEN"}
+openai = {"OPENAI_API_KEY", "OPENAI_BASE_URL", "CODEX_HOME"}
+forwarded = set(os.environ) & (anthropic | openai)
 if args == ["--version"]:
+    assert not forwarded
     print(host + " test adapter")
     raise SystemExit()
+assert forwarded == (anthropic if host == "claude" else openai)
 assert not Path("original-workflow.json").exists()
 assert not Path("another-arm").exists()
 Path("another-arm").touch()
@@ -52,7 +65,7 @@ class LiveWorkflowTest(unittest.TestCase):
                     "criteria": {"goal": "accepted", "within_steps": 2}, "max_steps": 2}
             (work / "original-workflow.json").write_text(json.dumps(spec))
             args = [sys.executable, str(PLUGIN), "workflow"]
-            env = {**os.environ, "PATH": str(binaries) + os.pathsep + os.defpath}
+            env = {**os.environ, **CREDENTIALS, "PATH": str(binaries) + os.pathsep + os.defpath}
             run = ["live", "original-workflow.json", "--max-calls", "4", "--out", "evidence.json"]
             refused = subprocess.run([*args, *run], cwd=work, env=env, capture_output=True)
             self.assertEqual(refused.returncode, 1)
