@@ -32,3 +32,7 @@ network path, and provider billing and routes require live qualification.
 
 Offline tests simulate two restarts, cap exhaustion, an identically priced
 replacement database, and changed prices. Verify refusals before transport.
+
+A ledger initialized with a policy digest refuses unbound callers before
+transport. Older ledgers without a stored policy continue to support the
+existing unbound offline path.

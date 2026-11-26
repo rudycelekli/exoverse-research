@@ -102,6 +102,12 @@ class PortkeyGatewayTest(unittest.TestCase):
             with self.assertRaisesRegex(BudgetRefused, "model policy differs"):
                 gateway(ledger, {**models, "codex": replace(policy, output_microusd_per_token=1)})
 
+            unbound = PortkeyGateway(key="fixture", budget=RequestBudget(ledger), models=models)
+            unbound._opener = MagicMock()
+            with self.assertRaises(BudgetRefused):
+                unbound.forward("codex", "/responses", body)
+            unbound._opener.open.assert_not_called()
+
             for instance in (gateway(ledger), gateway(ledger)):
                 instance._opener = MagicMock()
                 instance._opener.open.return_value.__enter__.return_value.read.return_value = b"fixture"

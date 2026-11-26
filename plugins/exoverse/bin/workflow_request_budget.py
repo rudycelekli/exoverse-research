@@ -74,16 +74,17 @@ class RequestBudget:
         try:
             with closing(self._connect()) as db, db:
                 db.execute("BEGIN IMMEDIATE")
-                policy = db.execute("SELECT cap, request_limit FROM policy WHERE id = 1").fetchone()
+                db.row_factory = sqlite3.Row
+                policy = db.execute("SELECT * FROM policy WHERE id = 1").fetchone()
                 if policy is None:
                     raise BudgetRefused("Request budget policy is missing.")
-                if self.binding is not None:
-                    bound_row = db.execute(
-                        "SELECT ledger_id, cap, request_limit, policy_sha256 FROM policy WHERE id = 1"
-                    ).fetchone()
-                    if bound_row != self.binding.row():
+                fields = ("ledger_id", "cap", "request_limit", "policy_sha256")
+                is_bound = "policy_sha256" in policy.keys() and policy["policy_sha256"] is not None
+                if is_bound or self.binding is not None:
+                    if (self.binding is None or not all(field in policy.keys() for field in fields)
+                            or tuple(policy[field] for field in fields) != self.binding.row()):
                         raise BudgetRefused("The budget ledger no longer matches the frozen pilot.")
-                cap, limit = policy
+                cap, limit = policy["cap"], policy["request_limit"]
                 count, reserved = db.execute("SELECT COUNT(*), COALESCE(SUM(amount), 0) FROM holds").fetchone()
                 if count >= limit or worst_case_microusd > cap - reserved:
                     raise BudgetRefused("The pilot request budget is exhausted.")
