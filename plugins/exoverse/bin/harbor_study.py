@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from research_spec import branch, decode, load
+from research_spec import branch, decode, load, load_frozen
 from workflow_study import LIMIT, canonical, digest, mapping, name, read
 
 SCHEMA = "exoverse.harbor-study.v1"
@@ -73,7 +73,7 @@ def cli(argv):
             candidate = read(args.candidate)
             if digest(candidate) != args.candidate_sha256:
                 raise ValueError("Candidate fingerprint differs.")
-            report = compare(load(args.baseline), decode(candidate),
+            report = compare(load_frozen(args.baseline), decode(candidate),
                              [load(args.baseline_trial), load(args.candidate_trial)], args.parent_sha256)
             raw = canonical(report)
             if len(raw) > LIMIT:

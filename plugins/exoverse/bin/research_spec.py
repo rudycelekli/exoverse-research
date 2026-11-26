@@ -3,6 +3,7 @@
 import argparse
 import json
 import math
+import re
 from pathlib import Path
 
 from workflow_study import LIMIT, canonical, digest, mapping, name, read
@@ -23,12 +24,30 @@ def _finite_float(value):
     return number
 
 
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"Duplicate JSON key: {key}.")
+        result[key] = value
+    return result
+
+
 def decode(raw):
-    return json.loads(raw, parse_constant=_reject_constant, parse_float=_finite_float)
+    return json.loads(raw, parse_constant=_reject_constant, parse_float=_finite_float,
+                      object_pairs_hook=_unique_object)
 
 
 def load(path):
     return decode(read(path))
+
+
+def load_frozen(path):
+    raw = read(path)
+    value = decode(raw)
+    if canonical(value) != raw:
+        raise ValueError("Frozen protocol bytes are not canonical.")
+    return value
 
 
 def protocol(value):
@@ -59,11 +78,17 @@ def freeze(value, parent=None, variable=None):
 
 
 def branch(baseline, fingerprint, variable, replacement):
-    if (not isinstance(baseline, dict) or baseline.get("schema") != SCHEMA
+    mapping(baseline, {"schema", "protocol", "parent", "changed_variable"}, "Frozen baseline")
+    if (baseline["schema"] != SCHEMA
             or digest(canonical(baseline)) != fingerprint):
         raise ValueError("Baseline does not match its retained fingerprint.")
     original = protocol(baseline.get("protocol"))
     variables = original["variables"]
+    parent, changed = baseline["parent"], baseline["changed_variable"]
+    if (parent is None and changed is not None
+            or parent is not None and (not isinstance(parent, str) or not re.fullmatch(r"[a-f0-9]{64}", parent)
+                                       or not isinstance(changed, str) or changed not in variables)):
+        raise ValueError("Baseline lineage metadata is invalid.")
     if variable not in variables or canonical(variables[variable]) == canonical(replacement):
         raise ValueError("Change exactly one declared variable to a different value.")
     return freeze({**original, "variables": {**variables, variable: replacement}}, fingerprint, variable)
@@ -91,12 +116,12 @@ def cli(argv):
         if args.mode == "freeze":
             result = freeze(load(args.protocol))
         elif args.mode == "branch":
-            result = branch(load(args.baseline), args.parent_sha256, args.variable, load(args.replacement))
+            result = branch(load_frozen(args.baseline), args.parent_sha256, args.variable, load(args.replacement))
         else:
             supplied = read(args.candidate)
             candidate = decode(supplied)
             variable = candidate["changed_variable"]
-            result = branch(load(args.baseline), args.parent_sha256, variable,
+            result = branch(load_frozen(args.baseline), args.parent_sha256, variable,
                             candidate["protocol"]["variables"][variable])
             if digest(supplied) != args.candidate_sha256 or canonical(result) != supplied:
                 raise ValueError("Candidate fingerprint or single-variable lineage did not reproduce.")

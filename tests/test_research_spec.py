@@ -45,6 +45,13 @@ class ResearchSpecTest(unittest.TestCase):
                            "--candidate-sha256", fingerprint, valid=valid)
 
             self.assertTrue(verify(child)["verified"])
+            for edited in (baseline_bytes + b" ", b'{"schema":"conflicting",' + baseline_bytes[1:]):
+                baseline.write_bytes(edited)
+                verify(child, valid=False)
+                cli("branch", baseline, "prompt", replacement, "--parent-sha256", parent,
+                    "--out", root / "refused", valid=False)
+                self.assertFalse((root / "refused").exists())
+            baseline.write_bytes(baseline_bytes)
             data = json.loads(candidate.read_bytes())
             data["protocol"]["rubric"]["requires_review"] = False
             changed = json.dumps(data, sort_keys=True, separators=(",", ":")).encode()
