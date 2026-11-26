@@ -113,6 +113,24 @@ def score_trials(trials, task):
     return checks
 
 
+def question_results(trials, task):
+    labels = load(task / "tests/labels.json")
+    predictions = {
+        trial.parent.parent.name: load(trial.parent / "verifier/answers.json")
+        for trial in trials
+    }
+    rows = []
+    for question, label in labels.items():
+        expected = {key: label[key] for key in ("source", "answer")} if label is not None else None
+        arms = {}
+        for arm, answers in predictions.items():
+            answer = answers[question]
+            arms[arm] = {"submitted": answer, "passed": answer == expected}
+        rows.append({"question_id": question, "criterion": "abstention" if label is None else "citation_support",
+                     "expected": label, "arms": arms})
+    return rows
+
+
 def verify(output, evidence_sha256, receipt_sha256):
     evidence = output / "evidence.json"
     receipt_bytes = (output / "verification.json").read_bytes()
@@ -151,7 +169,8 @@ def verify(output, evidence_sha256, receipt_sha256):
     if score_trials(trials, task) != receipt["answer_checks"]:
         raise ValueError("The raw answers differ from the verified scores or fingerprints.")
     return {"verified": True, "evidence_sha256": evidence_sha256,
-            "inputs_verified": "input_sha256" in receipt, "inputs_frozen": frozen_manifest is not None, "answer_checks": receipt["answer_checks"]}
+            "inputs_verified": "input_sha256" in receipt, "inputs_frozen": frozen_manifest is not None, "answer_checks": receipt["answer_checks"],
+            "questions": question_results(trials, task)}
 
 
 if __name__ == "__main__":
