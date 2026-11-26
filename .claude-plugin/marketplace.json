@@ -8,7 +8,7 @@
       "description": "Run, compare, and independently verify offline research studies.",
       "name": "exoverse",
       "source": "./plugins/exoverse",
-      "version": "0.6.6"
+      "version": "0.6.7"
     }
   ]
 }

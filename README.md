@@ -61,6 +61,13 @@ The [first-study trial guide](docs/first-study.md) takes you from a question to 
 
 See [advanced examples](docs/advanced.md) for monitoring incorrect completion reports, independent local review, and the optional iFixAI and Ruflo adapters.
 
+## Bring your own data and workflows
+
+The 0.6.7 candidate can analyze matched scores, score supplied answers against
+a locked reference key, collect paired outputs from local Ollama, and verify
+the complete experiment. See the [model experiment guide](docs/model-experiments.md) for commands. Start with the [workflow study guide](docs/workflow-study.md)
+to model a workflow with its own actions and success criteria.
+
 ## Version and license
 
-[Exoverse Research 0.6.6](https://github.com/rudycelekli/exoverse-research/releases/tag/v0.6.6) is released under Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). The release page provides the ZIP and its checksum. The package manifest records the contents of that ZIP.
+[Exoverse Research 0.6.6](https://github.com/rudycelekli/exoverse-research/releases/tag/v0.6.6) is released under Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). The release page provides the published ZIP and its checksum. The ZIP contains its own manifest. The checked-in manifest records an earlier 0.6.7 candidate snapshot. A fresh release build needs its own manifest and qualification.

@@ -89,7 +89,8 @@ class FirstStudyTest(unittest.TestCase):
         self.assertEqual({tool["name"] for tool in listing["tools"]}, {
             "exoverse_run_first_study", "exoverse_verify_first_study",
             "exoverse_run_local_comparison", "exoverse_run_monitor_comparison",
-            "exoverse_verify_local_comparison",
+            "exoverse_verify_local_comparison", "exoverse_analyze_paired_outcomes",
+            "exoverse_create_answer_key", "exoverse_score_paired_answers",
         })
         self.assertEqual(json.loads(starter["content"][0]["text"])["receipt"]["prediction"], "skip")
         self.assertEqual(json.loads(comparison["content"][0]["text"])["sha256"], EXPLORATION_DIGEST)

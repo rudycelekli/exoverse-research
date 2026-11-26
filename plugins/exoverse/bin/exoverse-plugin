@@ -4,6 +4,8 @@
 import sys
 
 from alignment_review import cli as review_cli
+from local_collection import cli as collect_cli
+from local_experiment import cli as experiment_cli
 from paired_study import cli as paired_cli
 from starter_study import cli as starter_cli
 from starter_study import serve
@@ -12,13 +14,21 @@ from starter_study import serve
 def main(argv):
     if argv == ["mcp", "starter"]:
         return serve()
+    if argv[:1] == ["workflow"]:
+        from workflow_study import cli as workflow_cli
+
+        return workflow_cli(argv[1:])
     if argv[:1] == ["starter"]:
         return starter_cli(argv[1:])
+    if argv[:1] == ["experiment"]:
+        return experiment_cli(argv[1:])
+    if argv[:1] == ["collect"]:
+        return collect_cli(argv[1:])
     if argv[:1] == ["paired"]:
         return paired_cli(argv[1:])
     if argv[:1] == ["review"]:
         return review_cli(argv[1:])
-    print("Usage: exoverse-plugin starter [run|verify] | paired [run|verify] | review | mcp starter")
+    print("Usage: exoverse-plugin starter [run|verify] | paired [run|analyze|key|score|verify|reproduce] | experiment [run|verify] | collect | workflow [run|verify] | review | mcp starter")
     return 0 if argv in ([], ["--help"]) else 2
 
 
