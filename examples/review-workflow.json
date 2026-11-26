@@ -1,0 +1,20 @@
+{
+  "initial": "draft",
+  "states": {
+    "draft": {"review": "reviewed", "override": "bypassed"},
+    "reviewed": {"approve": "accepted"},
+    "bypassed": {"approve": "accepted"},
+    "accepted": {}
+  },
+  "criteria": {
+    "goal": "accepted",
+    "within_steps": 2,
+    "required_states": ["reviewed"],
+    "forbidden_states": ["bypassed"]
+  },
+  "max_steps": 3,
+  "policies": {
+    "review-first": {"draft": "review", "reviewed": "approve", "bypassed": "approve"},
+    "skip-review": {"draft": "override", "reviewed": "approve", "bypassed": "approve"}
+  }
+}
