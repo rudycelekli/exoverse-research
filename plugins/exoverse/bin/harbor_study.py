@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 from research_spec import branch, decode, load, load_frozen
@@ -22,7 +23,14 @@ def compare(baseline, candidate, trials, parent_sha):
     if canonical(expected) != canonical(candidate):
         raise ValueError("Expected a verified branch changing only the Harbor agent.")
     plan = baseline["protocol"]
-    env = mapping(plan["environment"], {"adapter", "task_name", "task_checksum"}, "Harbor environment")
+    env = plan["environment"]
+    fields = {"adapter", "task_name", "task_checksum"}
+    if "input_manifest_sha256" in env:
+        fields.add("input_manifest_sha256")
+        fingerprint = env["input_manifest_sha256"]
+        if not isinstance(fingerprint, str) or not re.fullmatch(r"[a-f0-9]{64}", fingerprint):
+            raise ValueError("Expected a SHA-256 fingerprint for the Harbor input manifest.")
+    mapping(env, fields, "Harbor environment")
     if env["adapter"] != "harbor":
         raise ValueError("The frozen environment must use Harbor.")
     if plan["seeds"] != [0]:
