@@ -21,8 +21,8 @@
       "source": "NOTICE"
     },
     "README.md": {
-      "bytes": 4550,
-      "sha256": "b81292da700370aee7b9508096c00d8ab811809f4181fe8559a08b12fe6e2a36",
+      "bytes": 4456,
+      "sha256": "456d425fd2d6a58c8af7e34b9aa9421c9a5d8f91ecf1206acc8ab2dff1bb40e7",
       "source": "README.md"
     },
     "docs/adr/0001-replayable-alignment-demo.md": {
@@ -45,11 +45,6 @@
       "sha256": "893f954b4bf0aff7692262d48f98f2a9e255b0c1b6be08b006808d9d54fd8d61",
       "source": "docs/adr/0004-public-study-tools-and-workflows.md"
     },
-    "docs/adr/0005-native-agent-workflow-transport.md": {
-      "bytes": 1546,
-      "sha256": "b4050ebbf38f7ebdad6bc84622619895873a51d9e7e3c039c930c56344118ca4",
-      "source": "docs/adr/0005-native-agent-workflow-transport.md"
-    },
     "docs/advanced.md": {
       "bytes": 2791,
       "sha256": "a8b9c811948e31a2898ccb5674b392f24ddb0974429f5768cf3e98c571464062",
@@ -71,8 +66,8 @@
       "source": "docs/trial-feedback.md"
     },
     "docs/workflow-study.md": {
-      "bytes": 3108,
-      "sha256": "73c75904999501e50c070b54e9251d37bb681588e8cdb954d4d3a9640f9895b8",
+      "bytes": 1439,
+      "sha256": "396fa59bb76875ad30d291b6720babc7230a7a896f8525f436bd77530210f58c",
       "source": "docs/workflow-study.md"
     },
     "examples/browser/first-environment.html": {
@@ -116,8 +111,8 @@
       "source": "plugins/exoverse/bin/answer_study.py"
     },
     "plugins/exoverse/bin/exoverse-plugin": {
-      "bytes": 1229,
-      "sha256": "d6332f9e3ba8d53e432002fd542c9a7e9c4e925301b88fac93777325d242a62a",
+      "bytes": 1224,
+      "sha256": "cad9e36e565f93f325ddcc8c4e3f4e9286fcdf81cbe899c5dd7a411b63d05683",
       "source": "plugins/exoverse/bin/exoverse-plugin"
     },
     "plugins/exoverse/bin/ifixai_review.py": {
@@ -160,14 +155,9 @@
       "sha256": "4f30a6ca91630a2b92e8cdc6f41f9508358d900e83d556fc769270f8bbe8c9b8",
       "source": "plugins/exoverse/bin/starter_study.py"
     },
-    "plugins/exoverse/bin/workflow_agents.py": {
-      "bytes": 4032,
-      "sha256": "fc77e4d76ea23a0429a752bbfcf112c58baff9767124e81f728fd11a96947381",
-      "source": "plugins/exoverse/bin/workflow_agents.py"
-    },
     "plugins/exoverse/bin/workflow_study.py": {
-      "bytes": 9030,
-      "sha256": "0493c363b4860b7374791e0e1e1cfd495f6558702549cfb7bd6ec5074f4af235",
+      "bytes": 5156,
+      "sha256": "85dafae4c01852b7c68d67bec77c5fa305a9fbe9de90149fbc177cdb6022060a",
       "source": "plugins/exoverse/bin/workflow_study.py"
     },
     "plugins/exoverse/mcp.json": {
