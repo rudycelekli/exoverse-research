@@ -57,7 +57,7 @@ class ModelPolicy:
 
 class PortkeyGateway:
     def __init__(self, *, key, budget, models):
-        if not key or any(char.isspace() for char in key):
+        if not isinstance(key, str) or not key or any(not 33 <= ord(char) <= 126 for char in key):
             raise ValueError("A scoped Portkey credential is required.")
         if set(models) != set(ROUTES):
             raise ValueError("A fixed model policy is required for both agents.")
@@ -108,8 +108,8 @@ class PortkeyGateway:
         try:
             with self._opener.open(request, timeout=60) as response:
                 data = response.read(MAX_RESPONSE_BYTES + 1)
-        except (URLError, OSError) as error:
-            raise ValueError("Portkey request failed. The reservation remains held.") from error
+        except (URLError, OSError):
+            raise ValueError("Portkey request failed. The reservation remains held.") from None
         if len(data) > MAX_RESPONSE_BYTES:
             raise ValueError("Portkey response exceeded the workflow size limit.")
         return data

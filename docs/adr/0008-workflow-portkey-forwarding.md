@@ -35,3 +35,8 @@ A mocked transport test exercises both provider routes against a single $200
 fixture budget. It confirms a third request is blocked before transport when two
 reservations consume the ceiling. Wrong endpoints, model overrides and streaming
 requests are blocked. No provider traffic is used by the test.
+
+Two independent forwarding objects also share one initialized ledger in a
+concurrent failure test. The simulated upstream observes a committed
+reservation before each attempt. Failed requests retain both holds and the
+exhausted ledger blocks additional upstream calls.

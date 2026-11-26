@@ -40,3 +40,39 @@ class PortkeyGatewayTest(unittest.TestCase):
             with self.assertRaises(BudgetRefused):
                 gateway.forward("codex", "/responses", codex)
             self.assertEqual(gateway._opener.open.call_count, 2)
+
+    def test_independent_gateways_preserve_holds_on_transport_failure(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from contextlib import closing
+        import sqlite3
+        from urllib.error import URLError
+
+        with tempfile.TemporaryDirectory() as root:
+            ledger = Path(root) / "pilot.sqlite"
+            RequestBudget(ledger).initialize(cap_microusd=200_000_000, request_limit=6)
+            policy = ModelPolicy("fixed-model", 100_000, 500, 999, 200)
+            models = {"claude": policy, "codex": policy}
+
+            def fail_after_reservation(*args, **kwargs):
+                with closing(sqlite3.connect(ledger)) as db:
+                    reserved, = db.execute("SELECT SUM(amount) FROM holds").fetchone()
+                self.assertGreaterEqual(reserved, 100_000_000)
+                raise URLError("synthetic transport failure")
+
+            gateways = [PortkeyGateway(key="fixture", budget=RequestBudget(ledger), models=models)
+                        for _ in range(2)]
+            for gateway in gateways:
+                gateway._opener = MagicMock()
+                gateway._opener.open.side_effect = fail_after_reservation
+            body = b'{"model":"fixed-model","input":"choose"}'
+
+            def forward(gateway):
+                with self.assertRaisesRegex(ValueError, "reservation remains held"):
+                    gateway.forward("codex", "/responses", body)
+
+            with ThreadPoolExecutor(max_workers=2) as workers:
+                list(workers.map(forward, gateways))
+            for gateway in gateways:
+                with self.assertRaises(BudgetRefused):
+                    gateway.forward("codex", "/responses", body)
+                gateway._opener.open.assert_called_once()
