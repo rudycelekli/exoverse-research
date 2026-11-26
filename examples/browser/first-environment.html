@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exoverse · First RL environment</title>
+<style>
+:root{color-scheme:light dark;font:100% system-ui}body{max-width:52rem;margin:2rem auto;padding:0 1rem}h1{line-height:1.15}button,input{font:inherit;padding:.45rem}button{margin:.25rem 0}section{margin:2rem 0}table{width:100%;border-collapse:collapse}th,td{padding:.35rem;text-align:left;border-bottom:1px solid GrayText}label{display:block;margin-top:.75rem}input[type=text]{width:min(95%,44rem)}output{display:block;overflow-wrap:anywhere;min-height:1.5em}caption{text-align:left;padding:.6rem 0}details{margin:1rem 0}
+</style>
+<main>
+<h1>Run your first RL environment</h1>
+<p>Two policies choose between the same three options with noisy rewards. One samples evenly. The other adapts to the rewards it sees. Both face the same seeded reward streams.</p>
+<label for="seed">Starting seed</label>
+<input id="seed" type="number" value="17" min="0" max="4294967295" step="1">
+<button id="run" type="button">Run both policies</button>
+<p id="result" role="status"></p>
+<div id="traces"></div>
+<section id="export" hidden>
+<h2>Save the evidence</h2>
+<label for="seal">Experiment fingerprint</label>
+<input id="seal" type="text" readonly>
+<p>Keep the fingerprint separately. The export contains both traces and the starting seed.</p>
+<button id="download" type="button">Download evidence</button>
+</section>
+<section>
+<h2>Verify saved evidence</h2>
+<label for="file">Evidence JSON</label><input id="file" type="file" accept=".json,application/json">
+<label for="expected">Original fingerprint</label><input id="expected" type="text" autocomplete="off" maxlength="64">
+<button id="verify" type="button">Verify offline</button>
+<output id="verification" aria-live="polite"></output>
+</section>
+</main>
+<script type="module">
+const get = id => document.getElementById(id);
+const probabilities = [8, 5, 4];
+const schema = "exoverse.browser-first-environment.v1";
+let current;
+let exportUrl;
+
+function simulate(seed) {
+  if (!Number.isInteger(seed) || seed < 0 || seed > 4294967295) throw Error("Enter a whole seed between 0 and 4294967295.");
+  let state = seed;
+  const streams = probabilities.map(chance => Array.from({length:30}, () => {
+    state = (Math.imul(1664525, state) + 1013904223) >>> 0;
+    return Number(state / 4294967296 < chance / 10);
+  }));
+  const policies = ["Even sampling", "Adaptive sampling"].map((name, mode) => {
+    const pulls = [0, 0, 0], earned = [0, 0, 0], steps = [];
+    for (let step = 0; step < 30; step++) {
+      const observation = {pulls: [...pulls], earned: [...earned]};
+      let choice = step % 3;
+      if (mode && step >= 3) {
+        const values = earned.map((count, i) => count / pulls[i] + Math.sqrt(2 * Math.log(step) / pulls[i]));
+        choice = values.indexOf(Math.max(...values));
+      }
+      const reward = streams[choice][pulls[choice]++];
+      earned[choice] += reward;
+      steps.push({step: step + 1, observation, choice: choice + 1, reward, total: earned.reduce((a,b) => a+b, 0)});
+    }
+    return {name, reward: steps.at(-1).total, steps};
+  });
+  return {schema, seed, reward_probabilities_tenths: probabilities, policies};
+}
+async function digest(raw) {
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+  return Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, "0")).join("");
+}
+function element(tag, text, parent) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  parent.append(node);
+  return node;
+}
+function show(policy) {
+  const details = element("details", undefined, get("traces"));
+  element("summary", policy.name + " · " + policy.reward + " total reward", details);
+  const table = element("table", undefined, details);
+  element("caption", policy.name + " trace", table);
+  const head = element("tr", undefined, element("thead", undefined, table));
+  for (const label of ["Step","Previous pulls","Previous rewards","Choice","Reward","Total"]) {
+    element("th", label, head).scope = "col";
+  }
+  const body = element("tbody", undefined, table);
+  for (const step of policy.steps) {
+    const row = element("tr", undefined, body);
+    for (const cell of [step.step,step.observation.pulls.join(", "),step.observation.earned.join(", "),step.choice,step.reward,step.total]) {
+      element("td", String(cell), row);
+    }
+  }
+}
+get("run").onclick = async () => {
+  get("run").disabled = true;
+  get("export").hidden = true;
+  get("traces").replaceChildren();
+  try {
+    if (!get("seed").checkValidity() || !get("seed").value) throw Error("Enter a valid starting seed.");
+    const experiment = simulate(get("seed").valueAsNumber);
+    current = JSON.stringify(experiment);
+    get("seal").value = await digest(current);
+    experiment.policies.forEach(show);
+    get("result").textContent = "Complete. 30 steps per policy, zero model calls.";
+    get("export").hidden = false;
+  } catch (error) { get("result").textContent = error.message; }
+  finally { get("run").disabled = false; }
+};
+get("download").onclick = () => {
+  if (exportUrl) URL.revokeObjectURL(exportUrl);
+  exportUrl = URL.createObjectURL(new Blob([current], {type:"application/json"}));
+  const link = document.createElement("a");
+  link.href = exportUrl;
+  link.download = "exoverse-first-environment.json";
+  link.click();
+};
+for (const id of ["file","expected"]) get(id).oninput = () => { get("verification").textContent = ""; };
+get("verify").onclick = async () => {
+  for (const id of ["verify","file","expected"]) get(id).disabled = true;
+  get("verification").textContent = "";
+  try {
+    const file = get("file").files[0];
+    const seal = get("expected").value.trim();
+    if (!file || file.size > 65536 || !/^[a-f0-9]{64}$/.test(seal)) throw Error("Choose the evidence file and enter its original fingerprint.");
+    const raw = new TextDecoder("utf-8", {fatal:true, ignoreBOM:true}).decode(await file.arrayBuffer());
+    if (await digest(raw) !== seal) throw Error("The evidence does not match the original fingerprint.");
+    const receipt = JSON.parse(raw);
+    if (receipt?.schema !== schema || JSON.stringify(simulate(receipt.seed)) !== raw) {
+      throw Error("The observations, actions, or rewards did not reproduce.");
+    }
+    get("verification").textContent = "Verified offline. Both traces reproduced exactly.";
+  } catch (error) { get("verification").textContent = error.message; }
+  finally { for (const id of ["verify","file","expected"]) get(id).disabled = false; }
+};
+</script>
