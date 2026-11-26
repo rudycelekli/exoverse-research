@@ -136,3 +136,9 @@ New runs retain the task files in `retrieval/` inside the output directory.
 Keep that directory with the other artifacts. The offline verifier checks the
 recorded inputs before rescoring. It reports `inputs_verified: false` for
 older receipts without input fingerprints.
+
+Current runs also freeze the canonical input manifest fingerprint inside the
+baseline protocol before launching Harbor. The candidate inherits that
+fingerprint. The offline verifier reports `inputs_frozen: true` only when the
+receipt's input manifest matches the frozen protocol. Earlier runs retain
+their existing verification behavior and report `inputs_frozen: false`.

@@ -25,6 +25,11 @@ def input_hashes(task):
     return {name: hashlib.sha256((task / name).read_bytes()).hexdigest() for name in TASK_FILES}
 
 
+def manifest_digest(inputs):
+    raw = json.dumps(inputs, sort_keys=True, separators=(",", ":")).encode("ascii")
+    return hashlib.sha256(raw).hexdigest()
+
+
 def retain_task(output):
     snapshot = output / TASK.name
     for name in TASK_FILES:
@@ -53,7 +58,10 @@ def main(output):
     protocol_path.write_text(json.dumps({
         "question": "Does grounded fallback improve citation support and abstention?",
         "hypothesis": "Grounded fallback improves both scores on this frozen synthetic corpus.",
-        "environment": {"adapter": "harbor", "task_name": TASK.name, "task_checksum": Task(task).checksum},
+        "environment": {
+            "adapter": "harbor", "task_name": TASK.name, "task_checksum": Task(task).checksum,
+            "input_manifest_sha256": manifest_digest(inputs),
+        },
         "rubric": {"minimum_rewards": {"citation_support": 1, "abstention": 1}},
         "judge": None,
         "seeds": [0],
@@ -123,8 +131,14 @@ def verify(output, evidence_sha256, receipt_sha256):
     direct, = (output / "jobs/Direct").glob("*/result.json")
     grounded, = (output / "jobs/Grounded").glob("*/result.json")
     trials = [direct, grounded]
-    if [load(trial) for trial in trials] != load(evidence)["trials"]:
+    bundle = load(evidence)
+    if [load(trial) for trial in trials] != bundle["trials"]:
         raise ValueError("The raw Harbor receipts differ from the embedded trial records.")
+    frozen_manifest = bundle["baseline"]["protocol"]["environment"].get("input_manifest_sha256")
+    if frozen_manifest is not None:
+        inputs = receipt.get("input_sha256")
+        if not isinstance(inputs, dict) or manifest_digest(inputs) != frozen_manifest:
+            raise ValueError("Receipt inputs do not match the frozen protocol.")
     task = TASK
     if "input_sha256" in receipt:
         task = output / TASK.name
@@ -137,7 +151,7 @@ def verify(output, evidence_sha256, receipt_sha256):
     if score_trials(trials, task) != receipt["answer_checks"]:
         raise ValueError("The raw answers differ from the verified scores or fingerprints.")
     return {"verified": True, "evidence_sha256": evidence_sha256,
-            "inputs_verified": "input_sha256" in receipt, "answer_checks": receipt["answer_checks"]}
+            "inputs_verified": "input_sha256" in receipt, "inputs_frozen": frozen_manifest is not None, "answer_checks": receipt["answer_checks"]}
 
 
 if __name__ == "__main__":
