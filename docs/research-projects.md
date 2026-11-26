@@ -96,3 +96,26 @@ The verifier needs the bundle and its separately retained fingerprint.
 Drafts replay deterministic scores and display judge status. Review trial
 configuration and paths before sharing a bundle. A judge configuration in
 the spec records research intent, and live judge evaluation is pending.
+
+### Frozen retrieval fallback example
+
+The example under `examples/harbor/retrieval` uses a synthetic corpus, three
+answerable questions, two missing-evidence questions and exact source-span labels.
+The policies share initial retrieval and differ only in their fallback action.
+Use Harbor 0.25.0 and Docker. Run the script with the Python interpreter in the
+environment where Harbor is installed. The output directory must be new.
+
+```sh
+python examples/harbor/run_retrieval_study.py ./retrieval-run
+```
+
+The runner freezes both specs, runs independent Docker trials, recomputes
+citation support and abstention from the retained raw answers, and exports
+`paper.md`. Keep `verification.json`, the job folders and frozen evidence with
+the draft. A second reader can use `harbor verify` on `evidence.json` as above
+and replay each raw answer score with standard Python:
+
+```sh
+python examples/harbor/retrieval/tests/score.py path/to/verifier/answers.json \
+  examples/harbor/retrieval/tests/labels.json examples/harbor/retrieval/environment/corpus.json
+```
