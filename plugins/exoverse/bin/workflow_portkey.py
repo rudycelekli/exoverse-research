@@ -1,12 +1,14 @@
 """Fixed-route Portkey forwarding for non-streaming workflow requests."""
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+import hashlib
+import re
 import json
 from urllib.error import URLError
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 from uuid import uuid4
 
-from workflow_request_budget import BudgetRefused
+from workflow_request_budget import BudgetRefused, RequestBudget
 
 PORTKEY = "https://api.portkey.ai/v1"
 ROUTES = {
@@ -55,6 +57,17 @@ class ModelPolicy:
             raise ValueError("Model and positive integer limits and prices are required.")
 
 
+def pilot_policy_sha256(protocol_sha256, models):
+    if not isinstance(protocol_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", protocol_sha256):
+        raise ValueError("Expected a retained frozen protocol fingerprint.")
+    if set(models) != set(ROUTES) or not all(isinstance(model, ModelPolicy) for model in models.values()):
+        raise ValueError("A fixed model policy is required for both agents.")
+    policy = {"protocol_sha256": protocol_sha256, "gateway": PORTKEY, "routes": ROUTES,
+              "models": {agent: asdict(model) for agent, model in models.items()}}
+    raw = json.dumps(policy, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(raw).hexdigest()
+
+
 class PortkeyGateway:
     def __init__(self, *, key, budget, models):
         if not isinstance(key, str) or not key or any(not 33 <= ord(char) <= 126 for char in key):
@@ -65,6 +78,12 @@ class PortkeyGateway:
         self._budget = budget
         self._models = dict(models)
         self._opener = build_opener(ProxyHandler({}), _NoRedirect())
+
+    @classmethod
+    def for_frozen_pilot(cls, *, key, ledger_path, binding, protocol_sha256, models):
+        if binding.policy_sha256 != pilot_policy_sha256(protocol_sha256, models):
+            raise BudgetRefused("The gateway model policy differs from the frozen pilot.")
+        return cls(key=key, budget=RequestBudget(ledger_path, binding=binding), models=models)
 
     def forward(self, agent, path, body):
         """Reserve a conservative hold, then make one upstream attempt."""
