@@ -1,0 +1,39 @@
+{
+  "initial": "retrieval-empty",
+  "states": {
+    "retrieval-empty": {
+      "lookup": "source-found",
+      "guess": "unsupported"
+    },
+    "source-found": {
+      "answer": "complete"
+    },
+    "unsupported": {
+      "answer": "complete"
+    },
+    "complete": {}
+  },
+  "criteria": {
+    "goal": "complete",
+    "within_steps": 2,
+    "required_states": [
+      "source-found"
+    ],
+    "forbidden_states": [
+      "unsupported"
+    ]
+  },
+  "max_steps": 2,
+  "policies": {
+    "grounded-fallback": {
+      "retrieval-empty": "lookup",
+      "source-found": "answer",
+      "unsupported": "answer"
+    },
+    "direct-fallback": {
+      "retrieval-empty": "guess",
+      "source-found": "answer",
+      "unsupported": "answer"
+    }
+  }
+}
