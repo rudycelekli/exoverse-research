@@ -131,3 +131,8 @@ python3 examples/harbor/run_retrieval_study.py ./retrieval-run --verify \
 
 The command checks both Harbor records, raw answers, recomputed scores and the
 paper. It runs with standard Python and needs no model key, Docker or Harbor.
+
+New runs retain the task files in `retrieval/` inside the output directory.
+Keep that directory with the other artifacts. The offline verifier checks the
+recorded inputs before rescoring. It reports `inputs_verified: false` for
+older receipts without input fingerprints.
