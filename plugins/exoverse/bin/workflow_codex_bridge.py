@@ -1,10 +1,7 @@
 """Translate one trusted workflow turn into a bounded Codex Responses stream."""
 
 import json
-from threading import Lock
-
-from workflow_portkey import MAX_BODY_BYTES
-from workflow_request_budget import BudgetRefused
+from workflow_action_turn import ActionTurn, INSTRUCTION
 
 RESPONSES_PATH = "/v1/responses"
 
@@ -37,7 +34,7 @@ def _encode_events(response_id, model, action, usage):
     )
 
 
-def _read_action(raw, allowed):
+def _read_action(raw, turn):
     try:
         response = json.loads(raw)
         if response["status"] != "completed":
@@ -48,9 +45,7 @@ def _read_action(raw, allowed):
         content = messages[0]["content"]
         if len(content) != 1 or content[0]["type"] != "output_text":
             raise ValueError("Provider did not return one text action.")
-        action = json.loads(content[0]["text"])
-        if not isinstance(action, dict) or set(action) != {"action"} or action["action"] not in allowed:
-            raise ValueError("Provider returned an action outside the trusted observation.")
+        action = turn.action(content[0]["text"])
         response_id = response["id"]
         if not isinstance(response_id, str) or not 0 < len(response_id) <= 128:
             raise ValueError("Provider response identity is invalid.")
@@ -63,31 +58,12 @@ class CodexActionBridge:
     """A single sequential action bound to the coordinator's trusted observation."""
 
     def __init__(self, gateway, model, observation):
-        self._gateway = gateway
-        self._model = model
-        self._allowed = tuple(observation["allowed_actions"])
-        self._input = json.dumps(observation, sort_keys=True)
-        self._lock = Lock()
-        self._attempted = False
+        self._turn = ActionTurn(gateway, model, observation)
 
     def respond(self, path, body):
-        if path != RESPONSES_PATH or not isinstance(body, bytes) or len(body) > MAX_BODY_BYTES:
-            raise BudgetRefused("Unsupported Codex workflow request.")
-        try:
-            request = json.loads(body)
-        except (ValueError, RecursionError):
-            raise BudgetRefused("Invalid Codex workflow request JSON.") from None
-        if (not isinstance(request, dict) or request.get("stream") is not True
-                or request.get("model") != self._model):
-            raise BudgetRefused("Codex workflow requires the pinned streaming model.")
-        with self._lock:
-            if self._attempted:
-                raise BudgetRefused("This workflow turn already attempted a provider request.")
-            self._attempted = True
-        # The coordinator owns the observation. Native tool declarations and
-        # conversation history are deliberately excluded from the billable request.
-        request = {"model": self._model, "input": self._input,
-                   "instructions": 'Choose one allowed action. Return only JSON of the form {"action":"..."}.'}
-        upstream = self._gateway.forward("codex", "/responses", json.dumps(request).encode())
-        response_id, action, usage = _read_action(upstream, self._allowed)
-        return _encode_events(response_id, self._model, action, usage)
+        self._turn.begin(path, (RESPONSES_PATH,), body)
+        # Only the coordinator's observation is included in the upstream turn.
+        upstream = self._turn.forward("codex", "/responses", input=self._turn.input,
+                                      instructions=INSTRUCTION)
+        response_id, action, usage = _read_action(upstream, self._turn)
+        return _encode_events(response_id, self._turn.model, action, usage)
