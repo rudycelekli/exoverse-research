@@ -4,10 +4,11 @@ import argparse
 import json
 from pathlib import Path
 
-from research_spec import branch, decode, load
+from research_spec import branch, decode, load, load_frozen
 from workflow_study import LIMIT, canonical, digest, mapping, name, read
 
 SCHEMA = "exoverse.harbor-study.v1"
+TRIAL_BOOKKEEPING = {"job_id", "trial_name", "trials_dir"}
 
 
 def _number(value):
@@ -30,8 +31,11 @@ def compare(baseline, candidate, trials, parent_sha):
     thresholds = rubric["minimum_rewards"]
     if not isinstance(thresholds, dict) or not thresholds:
         raise ValueError("Provide at least one named minimum reward.")
+    if not isinstance(trials, list) or len(trials) != 2:
+        raise ValueError("Exactly two Harbor trial records are required.")
     if not env["task_checksum"] or trials[0]["id"] == trials[1]["id"]:
         raise ValueError("Pin the Harbor task checksum and provide two distinct trials.")
+    baseline_config = trials[0]["config"]
     results = []
     for arm, spec, trial in zip(("baseline", "candidate"), (baseline, candidate), trials):
         agent = name(spec["protocol"]["variables"]["agent"])
@@ -40,8 +44,11 @@ def compare(baseline, candidate, trials, parent_sha):
             raise ValueError(f"{arm} trial differs from its frozen task or agent.")
         if trial["config"]["agent"] != {**trials[0]["config"]["agent"], "name": agent}:
             raise ValueError("Harbor agent settings besides the name differ between arms.")
-        if trial["config"]["environment"] != trials[0]["config"]["environment"]:
-            raise ValueError("Harbor environment settings differ between arms.")
+        shared_fields = TRIAL_BOOKKEEPING | {"agent"}
+        observed = {key: value for key, value in trial["config"].items() if key not in shared_fields}
+        expected = {key: value for key, value in baseline_config.items() if key not in shared_fields}
+        if canonical(observed) != canonical(expected):
+            raise ValueError("Harbor trial settings besides the agent differ between arms.")
         if (not trial["finished_at"] or trial["exception_info"] is not None
                 or any(step.get("exception_info") for step in trial.get("step_results") or [])):
             raise ValueError(f"{arm} trial did not finish successfully.")
@@ -73,7 +80,10 @@ def cli(argv):
             candidate = read(args.candidate)
             if digest(candidate) != args.candidate_sha256:
                 raise ValueError("Candidate fingerprint differs.")
-            report = compare(load(args.baseline), decode(candidate),
+            child = decode(candidate)
+            if canonical(child) != candidate:
+                raise ValueError("Candidate protocol bytes are not canonical.")
+            report = compare(load_frozen(args.baseline), child,
                              [load(args.baseline_trial), load(args.candidate_trial)], args.parent_sha256)
             raw = canonical(report)
             if len(raw) > LIMIT:
